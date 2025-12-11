@@ -1,22 +1,63 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
-import pluginVue from 'eslint-plugin-vue'
-import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
+import antfu from '@antfu/eslint-config'
+import importX from 'eslint-plugin-import-x'
 
-// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
-// import { configureVueProject } from '@vue/eslint-config-typescript'
-// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
-// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+export default antfu(
+    {
+        typescript: true,
+        vue: true, // 明确启用 Vue 支持
+        stylistic: false // 禁用代码格式化规则
+    },
+    {
+        plugins: {
+            'import-x': importX
+        },
+        rules: {
+            'vue/html-self-closing': 'off',
+            'vue/multiline-html-element-content-newline': 'off', // 禁用多行标签内容必须换行的规则
+            'vue/singleline-html-element-content-newline': 'off', // 禁用单行标签内容必须换行的规则
+            'ts/ban-ts-comment': 'off', // 允许使用 @ts-ignore
+            'node/prefer-global/process': 'off', // 允许使用全局 process
+            'no-console': 'off', // 允许使用 console
+            'vue/html-indent': 'off', // Vue HTML 模板交给 Prettier 处理
+            'vue/html-closing-bracket-newline': 'off', // 允许闭合标签前换行
+            'pnpm/json-enforce-catalog': 'off', // 不强制使用 pnpm catalog
 
-export default defineConfigWithVueTs(
-  {
-    name: 'app/files-to-lint',
-    files: ['**/*.{ts,mts,tsx,vue}'],
-  },
+            // Import 路径优化 - 自动移除不必要的 /index.ts
+            'import-x/no-useless-path-segments': [
+                'error',
+                {
+                    noUselessIndex: true // 移除路径中的 /index
+                }
+            ],
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
-
-  pluginVue.configs['flat/essential'],
-  vueTsConfigs.recommended,
-  skipFormatting,
+            // Import 排序规则 - 使用 @antfu/eslint-config 内置的 import-x 插件
+            'sort-imports': 'off', // 关闭 ESLint 内置的排序
+            'import-x/order': [
+                'error',
+                {
+                    // 导入分组顺序
+                    groups: [
+                        'type', // 类型导入
+                        ['builtin', 'external'], // Node.js 内置模块、外部依赖
+                        ['internal', 'parent', 'sibling'], // 内部模块、父级和同级目录
+                        ['index', 'object'] // index 文件、object imports
+                    ],
+                    // 不同组之间添加空行
+                    'newlines-between': 'always',
+                    // 内部模块路径匹配规则
+                    pathGroups: [
+                        {
+                            pattern: '@/**',
+                            group: 'internal',
+                            position: 'before'
+                        }
+                    ],
+                    pathGroupsExcludedImportTypes: ['type']
+                }
+            ]
+        }
+    },
+    {
+        ignores: ['pnpm-workspace.yaml', 'pnpm-lock.yaml']
+    }
 )

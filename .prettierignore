@@ -1,0 +1,20 @@
+# 自动生成的文件
+**/src/generated
+**/generated
+
+# 依赖目录
+**/node_modules
+
+# 构建输出
+**/dist
+**/build
+
+# Lock 文件
+package-lock.json
+yarn.lock
+bun.lock
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# 其他
+.git

@@ -1,11 +1,35 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type { IRoles } from '@/type'
+
+import { onMounted } from 'vue'
+
+import { fetchAllHeroes } from '@/api'
+import nickname from '@/data/nickname.json'
+import { useStateStore } from '@/stores/state'
+
+import MainVeiw from './components/mainVeiw.vue'
+
+onMounted(async () => {
+    const stateStore = useStateStore()
+    const heros = await fetchAllHeroes()
+    heros.forEach((hero) => {
+        stateStore.heroes[hero.name] = {
+            id: hero.id,
+            name: hero.name,
+            avatarUrl: hero.avatarUrl,
+            nickname: nickname[hero.name as keyof typeof nickname] || [],
+            roles: hero.roles.split('/') as IRoles[]
+        }
+    })
+})
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+    <MainVeiw></MainVeiw>
 </template>
 
-<style scoped></style>
+<style>
+body {
+    margin: 0;
+}
+</style>

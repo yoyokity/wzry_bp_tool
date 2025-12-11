@@ -1,2 +1,8 @@
 onlyBuiltDependencies:
+  - '@parcel/watcher'
   - esbuild
+  - unrs-resolver
+
+shellEmulator: true
+
+trustPolicy: no-downgrade
